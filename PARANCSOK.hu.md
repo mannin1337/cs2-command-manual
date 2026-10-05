@@ -36,6 +36,8 @@ A `/...` parancsokat játékbeli chatben add ki. A `<név>` helyére valódi já
 | Csak a kör újraindítása | `/restartround` |
 | Odaugrás / odahozás | `/goto <név>` / `/bring <név>` |
 
+A `/invis` közben normál futásnál fél másodperc alatt fokozatosan jelensz meg, megálláskor visszahalványulsz. A csendes Shift-mozgás és guggolás önmagában nem fed fel. Lövés és más hangos esemény azonnal felfed; a jelző a karakter láthatóságát követi.
+
 A `/god` a pluginban életet tölt vissza minden szerverticken. Egyetlen halálos találat elleni védelmet a helyi ellenőrzés nem igazol; ezt külön kell kipróbálni. Ha egy parancsnál bizonytalan a célzás, használd a menüt.
 
 ## Gyakorlás

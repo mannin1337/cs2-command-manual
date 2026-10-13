@@ -120,3 +120,12 @@ A módlista a Valve aktuális játékmód-fájljaira és közleményeire épül:
 A közös parancsoknak egy szolgáltatója van. Az AdminTools kezeli a `god`, `hp`, `speed`, `money`, `slay`, `slap`, `rcon` parancsokat. A SimpleAdmin slay/slap/rcon változata `sa_slay`, `sa_slap`, `sa_rcon`; saját pályaváltása `adminmap`/`changemap`, körújraindítása `restartround`, kilépettjátékos-listája `lastplayers`. A MatchZy a `map`, `restart`, `rr`, `last` parancsokat kezeli, saját map-vetó tiltása `vetoban`, adminüzenete `mzasay`, konzolparancsa `mzrcon`, gyakorló god módja `pracgod`. A normál `ban`, `asay` és `god` adminművelet megmaradt.
 
 A szerverkonzolban a chatparancsok többségénél a `css_` előtagot kell használni. Az AdminTools legtöbb képességparancsa játékoshoz kötött. A módváltáshoz az adminmenü, `css_filming`, `css_prac`, `css_normal`, `css_match` vagy a megfelelő `exec cs2/*.cfg` használható. Az `!` és `/` előtag egyaránt működik; a `/` csendes chatparancs.
+
+
+## Böngészős térhang
+
+Oldal: https://cs2.mannin.hair/voice/ . Letöltés helyett megnyitod a böngészőben és engedélyezed a mikrofont. `!voice` privát, egyszer használható, 5 perces párosítókódot ad; `!voiceleave` kiléptet. A `css_browservoice` root admin / szerverkonzol számára állapotot mutat.
+
+A CS2 saját beszédhangerőjét a konzolban egyszer állítsd nullára: `snd_voipvolume 0` (előbb jegyezd fel az eredeti értéket). A megszokott CS2 beszédgomb marad aktív, a hang a böngészőből szól. A lap maradjon nyitva; kilépéskor állítsd vissza az eredeti CS2 hangerőt.
+
+20 méteres HRTF térhang, mindkét csapat minden élő emberi játékosa, folyamatos távolsági halkulás. Pozíció és nézési irány 20 Hz / átlag50ms, simított hangparaméterekkel. Halál, admin-némítás, kilépés és 750ms-nál régebbi állapot lezárja a hangutat. Nincs hangrögzítés. Az első változat a pawn szemszögét követi; thirdperson kameraeltolás és falakon át történő tompítás nincs benne.

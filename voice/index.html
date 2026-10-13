@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Letöltés nélküli, 20 méteres böngészős térhang a CS2 szerverhez. Párosítás a játékban, HRTF hang fejhallgatóhoz.">
+  <title>Counter-Strike · Térhang</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./client.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a href="../" class="wordmark" aria-label="Vissza a parancstárhoz">COUNTER<span>STRIKE</span><small>THE CS ADMIN SITE / MANNIN SERVER</small></a>
+      <nav aria-label="Oldalak"><a href="../">Parancstár</a><a class="selected" href="./" aria-current="page">Térhang</a></nav>
+    </header>
+    <div class="breadcrumb">SERVER TOOLS <span>/</span> VOICE COMMUNICATION</div>
+    <main>
+      <section class="window" aria-labelledby="title">
+        <div class="titlebar"><span class="window-icon" aria-hidden="true">◖))</span><span>Counter-Strike — Voice Setup</span><span class="window-corner" aria-hidden="true">− □</span></div>
+        <div class="intro">
+          <div><p class="eyebrow">KÖZEL VAGY? HALLUNK.</p><h1 id="title">Térhang<span class="cursor" aria-hidden="true">_</span></h1><p class="lede">A hang követi a játékot. Hallgasd a közelben állókat,<br class="wide-only"> és beszélj a megszokott CS2 beszédgombbal.</p></div>
+          <div class="range-mark" aria-label="20 méter, HRTF térhang"><strong>20<span>m</span></strong><small>HRTF / FEJHALLGATÓ</small></div>
+        </div>
+        <div class="tab-strip"><span class="active-tab">Kapcsolódás</span><span>Mindkét csapat · élő játékosok</span></div>
+        <div class="setup-grid">
+          <section class="steps" aria-label="Beállítás lépései">
+            <div class="step"><span class="step-number">01</span><div><h2>Kérj kódot a játékban</h2><p>Írd be a chatbe: <code>!voice</code><br>A privát kód 5 percig érvényes, egyszer használható.</p></div></div>
+            <div class="step"><span class="step-number">02</span><div><h2>Némítsd el a gyári hangot</h2><p>Jegyezd fel a konzolban a <code>snd_voipvolume</code> jelenlegi értékét, majd add ki:</p><button type="button" id="copy-command" class="command-button"><code>snd_voipvolume 0</code><span>Másolás</span></button><p class="small">A CS2 beszédgombja maradjon aktív. Kilépéskor állítsd vissza az eredeti értéket.</p></div></div>
+            <div class="step"><span class="step-number">03</span><div><h2>Párosítsd a mikrofont</h2><p>Engedélyezd a hozzáférést, aztán térj vissza a játékhoz. Ezt a lapot hagyd nyitva.</p></div></div>
+          </section>
+          <section class="connect-panel" aria-labelledby="connect-heading">
+            <h2 id="connect-heading">Hangkapcsolat</h2>
+            <div class="status-bar" role="status" aria-live="polite"><span class="status-led" id="status-led" data-state="idle" aria-hidden="true"></span><span id="status">Nincs kapcsolat</span></div>
+            <p id="service-note" class="service-note">A szolgáltatás beállításának ellenőrzése…</p>
+            <form id="join-form">
+              <label for="pair-code">Párosítókód <span>a játék privát válaszából</span></label>
+              <input id="pair-code" name="code" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="100" placeholder="Illeszd be a !voice kódját" required>
+              <label for="microphone">Mikrofon</label>
+              <select id="microphone" name="microphone"><option value="">Rendszer alapértelmezett mikrofonja</option></select>
+              <p class="small">A CS2-ben is ugyanezt a mikrofont válaszd.</p>
+              <button id="join" type="submit" class="primary" disabled>Mikrofon engedélyezése és csatlakozás</button>
+            </form>
+            <div class="connection-actions"><button id="resume-audio" type="button" hidden>Hang folytatása</button><button id="leave" type="button" disabled>Kapcsolat bontása</button></div>
+            <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+            <p id="restore" class="restore" hidden>Vissza a gyári hanghoz: a CS2 konzolban állítsd vissza a <code>snd_voipvolume</code> korábban feljegyzett értékét. A játékban: <code>!voiceleave</code>.</p>
+          </section>
+        </div>
+        <section class="session-panel" aria-labelledby="players-heading">
+          <div class="section-heading"><h2 id="players-heading">A közeledben</h2><span id="self-state">Mikrofon: kikapcsolva</span></div>
+          <p id="players-empty" class="empty">Párosítás után itt jelennek meg a hallható játékosok.</p>
+          <ul id="players" class="player-list" aria-label="Közeli játékosok"></ul>
+        </section>
+        <div class="window-footer"><span>● NINCS HANGRÖGZÍTÉS</span><span>HTTPS / WEB AUDIO / 20 m</span></div>
+      </section>
+      <aside class="details-grid">
+        <section class="detail-panel"><h2>Hogyan működik?</h2><p>Fejhallgatóval a hang iránya és távolsága is hallható. A nézési irányt a játékos szemszöge adja. 20 méternél elhalkul; halál, némítás vagy megszakadt kapcsolat esetén csend lesz.</p><p>A hang csak a CS2 által jelzett beszéd alatt jut tovább. A gyári beszélőikon és a háttérben futó mikrofon működése közös játékbeli ellenőrzésre vár.</p></section>
+        <section class="detail-panel diagnostic"><h2>Térhang-ellenőrzés</h2><p>Helyi ellenőrzés szintetikus hanggal: bal / jobb oldal, fordulás és távolság. Mikrofont nem használ, hangot nem játszik le.</p><button type="button" id="diagnostic">Helyi hangmotor ellenőrzése</button><ul id="diagnostic-results" class="diagnostic-results" aria-live="polite"></ul><details id="diagnostic-details" hidden><summary>Mért csatornaértékek</summary><pre id="diagnostic-values"></pre></details></section>
+      </aside>
+    </main>
+    <footer class="site-footer"><span>mester istván király cipésznek sok szeretettel</span><span>GL &amp; HF!</span></footer>
+  </div>
+  <noscript><p class="noscript">A térhang használatához engedélyezd a JavaScriptet.</p></noscript>
+</body>
+</html>

@@ -5,7 +5,7 @@ import { Device } from './vendor/mediasoup-client.js';
 import { MediasoupVoice } from './mediasoup-voice.js';
 import { canHear, distanceMeters, fresh, validateFrame, STALE_MS } from './policy.js';
 
-const ui = Object.fromEntries(['join-form','player-select','refresh-players','roster-note','microphone','join','leave','resume-audio','status','status-led','service-note','feedback','restore','self-state','players','players-empty','copy-command','diagnostic','diagnostic-results','diagnostic-details','diagnostic-values'].map(id => [id, document.getElementById(id)]));
+const ui = Object.fromEntries(['join-form','player-select','refresh-players','roster-note','no-voice','microphone','join','leave','resume-audio','status','status-led','service-note','feedback','restore','self-state','players','players-empty','copy-command','diagnostic','diagnostic-results','diagnostic-details','diagnostic-values'].map(id => [id, document.getElementById(id)]));
 let current = null;
 let generation = 0;
 let lastPlayersView = '';
@@ -23,7 +23,12 @@ let socketUrl;
 try { socketUrl = endpoint(); } catch (error) { ui.feedback.textContent = error.message; }
 const supported = Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && window.AudioContext && window.RTCPeerConnection);
 ui['service-note'].textContent = !socketUrl ? 'A hangszolgáltatás még nincs beállítva. A csatlakozás egyelőre nem érhető el.' : !supported ? 'A térhanghoz HTTPS és WebRTC / Web Audio támogatás szükséges.' : 'A mikrofon csak a csatlakozás gomb megnyomásakor indul.';
-function updateJoinButton() { ui.join.disabled = Boolean(current) || refreshing || !socketUrl || !supported || !ui['player-select'].value; }
+function selectablePlayer() { return ui['player-select'].value && !ui['player-select'].selectedOptions[0]?.disabled; }
+function updateJoinButton() {
+  ui.join.disabled = Boolean(current) || refreshing || !socketUrl || (!supported && !ui['no-voice'].checked) || !selectablePlayer();
+  ui.join.textContent = ui['no-voice'].checked ? 'NO VOICE választás és csatlakozás' : 'Mikrofon engedélyezése és csatlakozás';
+  ui.microphone.disabled = Boolean(current) || ui['no-voice'].checked;
+}
 async function refreshPlayers() {
   if (current || refreshing || !socketUrl) return;
   refreshing = true;
@@ -44,9 +49,11 @@ async function refreshPlayers() {
     ui['player-select'].replaceChildren(new Option('Válaszd ki a saját játékosod…', ''));
     players.forEach((player, index) => {
       const duplicate = players.filter(p => p.name === player.name).length > 1;
-      ui['player-select'].add(new Option(`${player.name || 'Névtelen játékos'}${duplicate ? ` · #${index + 1}` : ''}${player.paired ? ' · már kapcsolódva' : ''}`, player.id));
+      const option = new Option(`${player.name || 'Névtelen játékos'}${duplicate ? ` · #${index + 1}` : ''}${player.paired ? ' · foglalt' : ''}`, player.id);
+      option.disabled = player.paired;
+      ui['player-select'].add(option);
     });
-    if (players.some(player => player.id === selected)) ui['player-select'].value = selected;
+    if (players.some(player => player.id === selected && !player.paired)) ui['player-select'].value = selected;
     ui['roster-note'].textContent = !roster.available ? 'A játék kapcsolata most nem elérhető. Próbáld újra a Frissítés gombbal.' : players.length ? `${players.length} játékos a szerveren. Később csatlakoztál? Frissítsd a listát.` : 'Még nincs játékos a szerveren. Lépj be, majd nyomd meg a Frissítés gombot.';
   } catch (error) {
     ui['player-select'].replaceChildren(new Option('A lista most nem érhető el', ''));
@@ -62,12 +69,32 @@ function status(text, state) {
 }
 function alive(session) { return current === session && session.generation === generation; }
 function active(session) { return alive(session) && session.media?.connected && session.socket?.readyState === WebSocket.OPEN && session.audio.context?.state === 'running'; }
+function reportReadiness(session, force = false) {
+  if (!alive(session) || session.mode !== 'voice' || !session.playerId || !session.rpc || session.socket?.readyState !== WebSocket.OPEN || session.readyInFlight) return;
+  const now = performance.now();
+  const ready = Boolean(active(session) && fresh(now, session.receivedAt) && session.audio.capture?.getAudioTracks().some(track => track.readyState === 'live'));
+  if (!force && ready === session.lastReady && now - session.lastReadyReport < 2000) return;
+  session.readyInFlight = true;
+  session.lastReady = ready;
+  session.lastReadyReport = now;
+  session.rpc.request('client_ready', { ready }).then(result => {
+    if (alive(session) && typeof result?.ready !== 'boolean') throw new Error('Hibás voice állapotválasz.');
+  }).catch(error => { if (alive(session)) void leave('A voice állapot nem igazolható. Kapcsolódj újra azonnal.', true); })
+    .finally(() => { session.readyInFlight = false; });
+}
 function updateAudio(session) {
   const self = session.players.find(player => player.id === session.playerId);
   session.audio.update(self, session.players, session.receivedAt, performance.now(), active(session));
 }
 
 function renderPlayers(session) {
+  if (session?.mode === 'no_voice') {
+    ui['self-state'].textContent = 'NO VOICE · mikrofon nélkül';
+    ui.players.replaceChildren();lastPlayersView = '';
+    ui['players-empty'].hidden = false;
+    ui['players-empty'].textContent = 'NO VOICE: nem hallasz senkit, és téged sem hall senki. A neved mellett a játékban (NO VOICE) látszik.';
+    return;
+  }
   const self = session?.players.find(player => player.id === session.playerId);
   const valid = session && fresh(performance.now(), session.receivedAt);
   ui['self-state'].textContent = !session ? 'Mikrofon: kikapcsolva' : !valid ? 'Mikrofon: nincs friss játékállapot' : !self?.alive ? 'Mikrofon: halott / néző' : self.muted ? 'Mikrofon: admin által némítva' : !active(session) ? 'Mikrofon: hangkapcsolatra vár' : self.speaking ? 'Mikrofon: beszéd továbbítva' : 'Mikrofon: beszédgombra vár';
@@ -128,7 +155,7 @@ function openSocket(session) {
     let joined = false;
     session.socket.onopen = () => {
       if (!alive(session)) return;
-      session.socket.send(JSON.stringify({ type:'request_pair', playerId:session.selectedPlayer }));
+      session.socket.send(JSON.stringify({ type:'request_pair', playerId:session.selectedPlayer, mode:session.mode }));
     };
     session.socket.onmessage = event => {
       if (!alive(session)) return;
@@ -141,13 +168,13 @@ function openSocket(session) {
           status('Játékbeli jóváhagyásra vár: !voice', 'busy');
           ui.feedback.textContent = 'Térj vissza a CS2-be, és a chatbe írd: !voice. 60 másodperced van a saját kapcsolódásod jóváhagyására.';
         } else if (message.type === 'joined') {
-          if (joined || message.playerId !== session.selectedPlayer || !message.routerRtpCapabilities || !Array.isArray(message.routerRtpCapabilities.codecs)) throw new Error('Hibás párosítási válasz.');
+          if (joined || message.playerId !== session.selectedPlayer || (message.mode || 'voice') !== session.mode || (session.mode === 'voice' && (!message.routerRtpCapabilities || !Array.isArray(message.routerRtpCapabilities.codecs)))) throw new Error('Hibás párosítási válasz.');
           joined = true;
           clearTimeout(timer);
           session.playerId = message.playerId;
           session.routerRtpCapabilities = message.routerRtpCapabilities;
           resolve();
-        } else if (message.type === 'frame' && joined) {
+        } else if (message.type === 'frame' && joined && session.mode === 'voice') {
           if (!validateFrame(message)) throw new Error('Hibás játékállapot: a hangút lezárult.');
           if (session.epoch && session.epoch !== message.epoch) throw new Error('A játékszerver újraindult. Válaszd ki magad újra a listából.');
           if (message.seq <= session.seq) return;
@@ -163,11 +190,13 @@ function openSocket(session) {
             reconcile(session);
             renderPlayers(session);
             status('Játékállapotra vár · hang némítva', 'busy');
+            reportReadiness(session, true);
           }, STALE_MS);
           updateAudio(session);
           reconcile(session);
           renderPlayers(session);
           if (active(session)) status('Kapcsolódva · játékállapot élő', 'connected');
+          reportReadiness(session);
         } else if (message.type === 'voice' && joined && typeof message.speaking === 'boolean') {
           const player = session.players.find(player => player.id === message.id);
           if (player) { player.speaking = message.speaking; updateAudio(session); renderPlayers(session); }
@@ -186,7 +215,7 @@ function openSocket(session) {
       clearTimeout(timer);
       session.rpc.close();
       reject(new Error('A párosítási kapcsolat megszakadt.'));
-      if (alive(session)) void leave('A hangkapcsolat megszakadt. Válaszd ki magad újra, majd a játékban hagyd jóvá: !voice.', true);
+      if (alive(session)) void leave(session.mode === 'no_voice' && joined ? 'NO VOICE módban nem volt hangküldés vagy vétel. Váltáshoz a játékban !voiceleave, majd válassz újra.' : 'A hangkapcsolat megszakadt. Válaszd ki magad újra azonnal, majd a játékban hagyd jóvá: !voice.', session.mode !== 'no_voice');
     };
     session.socket.onerror = () => {
       session.audio.silence();
@@ -199,22 +228,31 @@ function openSocket(session) {
 
 async function join(event) {
   event.preventDefault();
-  if (current || refreshing || !socketUrl || !supported) return;
+  if (current || refreshing || !socketUrl || (!supported && !ui['no-voice'].checked)) return;
   const selectedPlayer = ui['player-select'].value;
-  if (!selectedPlayer) { ui['player-select'].focus(); return; }
+  if (!selectablePlayer()) { ui['player-select'].focus(); return; }
   const session = { generation:++generation, audio:new VoiceAudio({ onDecoderFailure:() => {
     if (alive(session)) void leave('A böngésző nem tudta elindítani a térhang vételét. Válaszd ki magad újra az oldalon.', true);
-  } }), selectedPlayer, players:[], playerId:null, receivedAt:-Infinity, seq:-1, epoch:null, receivers:new Map(), retryAfter:new Map(), abort:new AbortController() };
+  } }), mode:ui['no-voice'].checked ? 'no_voice' : 'voice', selectedPlayer, players:[], playerId:null, receivedAt:-Infinity, seq:-1, epoch:null, receivers:new Map(), retryAfter:new Map(), abort:new AbortController(), lastReadyReport:-Infinity };
   current = session;
   ui.join.disabled = true;
   ui['player-select'].disabled = true;
   ui['refresh-players'].disabled = true;
+  ui['no-voice'].disabled = true;
   ui.microphone.disabled = true;
   ui.leave.disabled = false;
   ui.restore.hidden = true;
-  ui.feedback.textContent = 'Engedélyezd a mikrofont a böngésző kérdésénél.';
-  status('Mikrofon és párosítás indítása…', 'busy');
+  ui.feedback.textContent = session.mode === 'no_voice' ? 'NO VOICE választás. Mikrofont nem kérünk; a játékban !voice paranccsal hagyd jóvá.' : 'Engedélyezd a mikrofont a böngésző kérdésénél.';
+  status(session.mode === 'no_voice' ? 'NO VOICE jóváhagyás indítása…' : 'Mikrofon és párosítás indítása…', 'busy');
   try {
+    if (session.mode === 'no_voice') {
+      await openSocket(session);
+      if (!alive(session)) return;
+      status('NO VOICE · a választásod rögzítve', 'connected');
+      ui.feedback.textContent = 'Mikrofon nélkül játszol: nincs hangküldés vagy vétel. A meccs így is indulhat. Váltáshoz játékban !voiceleave, majd új választás.';
+      renderPlayers(session);
+      return;
+    }
     // Both start in the same click gesture. Every subsequent await checks session identity.
     const capture = session.audio.start(ui.microphone.value).then(track => {
       if (!alive(session)) return track;
@@ -235,6 +273,7 @@ async function join(event) {
         updateAudio(session);
         reconcile(session);
         renderPlayers(session);
+        reportReadiness(session, true);
         status(active(session) && fresh(performance.now(), session.receivedAt) ? 'Kapcsolódva · játékállapot élő' : 'Párosítva · hangkapcsolatra vár', active(session) && fresh(performance.now(), session.receivedAt) ? 'connected' : 'busy');
       }
     });
@@ -244,12 +283,15 @@ async function join(event) {
       ui['resume-audio'].hidden = session.audio.context.state === 'running';
       if (session.audio.context.state !== 'running') { session.audio.silence(); status('A böngésző felfüggesztette a hangot', 'busy'); }
       else updateAudio(session);
+      reportReadiness(session, true);
     };
     await session.media.start(session.routerRtpCapabilities, track);
     if (!alive(session)) return;
     updateAudio(session);
     reconcile(session);
     renderPlayers(session);
+    reportReadiness(session, true);
+    session.readyTimer = setInterval(() => reportReadiness(session), 2000);
     status(active(session) && fresh(performance.now(), session.receivedAt) ? 'Kapcsolódva · játékállapot élő' : 'Párosítva · hangkapcsolatra vár', active(session) && fresh(performance.now(), session.receivedAt) ? 'connected' : 'busy');
     ui.feedback.textContent = 'Térj vissza a CS2-be, és használd a megszokott beszédgombot. A lap maradjon nyitva.';
   } catch (error) {
@@ -267,6 +309,7 @@ async function leave(message = 'A kapcsolat bontva. A mikrofon kikapcsolva.', er
   if (session) {
     session.audio.silence();
     clearTimeout(session.staleTimer);
+    clearInterval(session.readyTimer);
     session.abort.abort();
     for (const id of [...session.receivers.keys()]) closeReceiver(session, id);
     session.media?.close();
@@ -277,6 +320,8 @@ async function leave(message = 'A kapcsolat bontva. A mikrofon kikapcsolva.', er
   }
   ui['player-select'].disabled = false;
   ui['refresh-players'].disabled = !socketUrl;
+  ui['no-voice'].disabled = false;
+  ui['no-voice'].checked = false;
   updateJoinButton();
   ui.microphone.disabled = false;
   ui.leave.disabled = true;
@@ -300,6 +345,7 @@ async function microphones() {
 }
 ui['join-form'].addEventListener('submit', join);
 ui['player-select'].addEventListener('change', updateJoinButton);
+ui['no-voice'].addEventListener('change', updateJoinButton);
 ui['refresh-players'].addEventListener('click', () => void refreshPlayers());
 ui.leave.addEventListener('click', () => void leave());
 ui['resume-audio'].addEventListener('click', () => {

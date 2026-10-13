@@ -33,7 +33,7 @@ export class MediasoupVoice {
     transport.on('connectionstatechange', state => {
       if (!this.live()) return;
       if (['failed','disconnected','closed'].includes(state)) {
-        this.fail(new Error('A közös hangkapcsolat megszakadt. Kérj új !voice kódot.'));
+        this.fail(new Error('A közös hangkapcsolat megszakadt. Kapcsolódj újra az oldalon, majd hagyd jóvá a játékban: !voice.'));
         return;
       }
       this.refreshReceivers();

@@ -8,4 +8,6 @@ Az `index.html` önállóan, internetkapcsolat nélkül is használható; a kép
 
 Ez a könyvtár kizárólag nyilvános statikus fájlokat tartalmaz. A parancstár gombjai a parancs szövegét másolják a vágólapra. A térhangoldalon először ki kell választani a szerveren lévő saját játékost; a Frissítés gomb lekéri az új neveket. Kapcsolódás után a játékban a !voice paranccsal hagyható jóvá a kérés, 60 másodpercen belül. Kódot nem kell másolni. A 20 méteres HRTF hangot a saját VPS továbbítja; a pozíció és a nézési irány 20 Hz-en frissül. A CS2 saját beszédhangerőjét a résztvevők nullára állítják, majd kilépéskor visszaállítják.
 
-A valódi CS2 beszédgomb, gyári beszélőikon és háttérben futó mikrofon közös játékbeli ellenőrzésre vár. A böngészős hangmotor és a WebRTC hangátvitel automatizált próbája sikeres.
+A már szinkronizált játékosok foglaltak. Mikrofon nélkül a NO VOICE választás is jóváhagyható a játékban, hangküldés és hangfogadás nélkül; új választáshoz `!voiceleave`. Működő hang nélkül a játékos neve mellett `(NO VOICE)` jelenik meg. Egy új meccs minden részt vevő T/CT ember működő hangjára vagy kifejezett NO VOICE választására vár; adminos indítás sem kerüli meg ezt. Ha a hanglap bezárul vagy kifagy, a játékos privát újracsatlakozási figyelmeztetést kap. Egy már futó meccset ez nem szüneteltet.
+
+A valódi CS2 beszédgomb, gyári beszélőikon, névjelzés és háttérben futó mikrofon közös játékbeli ellenőrzésre vár. A böngészős hangmotor, WebRTC hangátvitel, foglalt játékosok és mikrofon nélküli belépés automatizált próbája sikeres.

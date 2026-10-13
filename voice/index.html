@@ -28,7 +28,7 @@
           <section class="steps" aria-label="Beállítás lépései">
             <div class="step"><span class="step-number">01</span><div><h2>Lépj fel a CS2 szerverre</h2><p>A kapcsolódásnál válaszd ki a saját játékosneved. Ha később léptél be, nyomd meg a <strong>Frissítés</strong> gombot.</p></div></div>
             <div class="step"><span class="step-number">02</span><div><h2>Némítsd el a gyári hangot</h2><p>Jegyezd fel a konzolban a <code>snd_voipvolume</code> jelenlegi értékét, majd add ki:</p><button type="button" id="copy-command" class="command-button"><code>snd_voipvolume 0</code><span>Másolás</span></button><p class="small">A CS2 beszédgombja maradjon aktív. Kilépéskor állítsd vissza az eredeti értéket.</p></div></div>
-            <div class="step"><span class="step-number">03</span><div><h2>Kapcsolódj, és hagyd jóvá</h2><p>Engedélyezd a mikrofont, majd a játék chatjében írd be: <code>!voice</code>. Erre 60 másodperced van. Kódot nem kell másolni; ezt a lapot hagyd nyitva.</p></div></div>
+            <div class="step"><span class="step-number">03</span><div><h2>Kapcsolódj, és hagyd jóvá</h2><p>Engedélyezd a mikrofont, vagy válaszd a NO VOICE lehetőséget. Ezután a játék chatjében: <code>!voice</code>, 60 másodpercen belül. Kódmásolás nem kell; a hanghoz ezt a lapot hagyd nyitva.</p></div></div>
           </section>
           <section class="connect-panel" aria-labelledby="connect-heading">
             <h2 id="connect-heading">Hangkapcsolat</h2>
@@ -38,11 +38,13 @@
               <div class="roster-heading"><label for="player-select">Saját játékosod <span>az aktuálisan csatlakozott játékosok közül</span></label><button id="refresh-players" type="button">Frissítés</button></div>
               <select id="player-select" name="player" required><option value="">Játékoslista betöltése…</option></select>
               <p id="roster-note" class="small" role="status" aria-live="polite">A szerveren lévő játékosok lekérése…</p>
+              <label class="no-voice-choice"><input id="no-voice" type="checkbox"><span>Nincs mikrofon / NO VOICE<small>Nem kér mikrofont, nem hallasz másokat és ők sem hallanak. A játékbeli jóváhagyás után így is indulhat a meccs.</small></span></label>
               <label for="microphone">Mikrofon</label>
               <select id="microphone" name="microphone"><option value="">Rendszer alapértelmezett mikrofonja</option></select>
               <p class="small">A CS2-ben is ugyanezt a mikrofont válaszd.</p>
               <button id="join" type="submit" class="primary" disabled>Mikrofon engedélyezése és csatlakozás</button>
               <p class="small">Csak a saját kezdeményezett kérésedet hagyd jóvá. Elutasítás a játékban: <code>!voicedeny</code>.</p>
+              <p class="small">A már kiválasztott játékosok foglaltak. Új választáshoz a játékban: <code>!voiceleave</code>. A meccs minden T/CT játékos működő voice vagy jóváhagyott NO VOICE állapotára vár.</p>
             </form>
             <div class="connection-actions"><button id="resume-audio" type="button" hidden>Hang folytatása</button><button id="leave" type="button" disabled>Kapcsolat bontása</button></div>
             <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
@@ -57,7 +59,7 @@
         <div class="window-footer"><span>● NINCS HANGRÖGZÍTÉS</span><span>HTTPS / WEB AUDIO / 20 m</span></div>
       </section>
       <aside class="details-grid">
-        <section class="detail-panel"><h2>Hogyan működik?</h2><p>Fejhallgatóval a hang iránya és távolsága is hallható. A nézési irányt a játékos szemszöge adja. 20 méternél elhalkul; halál, némítás vagy megszakadt kapcsolat esetén csend lesz.</p><p>A hang csak a CS2 által jelzett beszéd alatt jut tovább. A gyári beszélőikon és a háttérben futó mikrofon működése közös játékbeli ellenőrzésre vár.</p></section>
+        <section class="detail-panel"><h2>Hogyan működik?</h2><p>Fejhallgatóval a hang iránya és távolsága is hallható. A nézési irányt a játékos szemszöge adja. 20 méternél elhalkul; halál, némítás vagy megszakadt kapcsolat esetén csend lesz.</p><p>Ha a hanglap bezárul vagy kifagy, privát figyelmeztetést kapsz a játékban: csatlakozz újra azonnal. Működő hang nélkül a neved mellett <strong>(NO VOICE)</strong> jelenik meg. Az új meccs minden T/CT játékos működő hangjára vagy jóváhagyott NO VOICE választására vár; egy már futó meccset a hangvesztés nem állít meg.</p><p>A hang csak a CS2 által jelzett beszéd alatt jut tovább. A gyári beszélőikon és a háttérben futó mikrofon működése közös játékbeli ellenőrzésre vár.</p></section>
         <section class="detail-panel diagnostic"><h2>Térhang-ellenőrzés</h2><p>Helyi ellenőrzés szintetikus hanggal: bal / jobb oldal, fordulás és távolság. Mikrofont nem használ, hangot nem játszik le.</p><button type="button" id="diagnostic">Helyi hangmotor ellenőrzése</button><ul id="diagnostic-results" class="diagnostic-results" aria-live="polite"></ul><details id="diagnostic-details" hidden><summary>Mért csatornaértékek</summary><pre id="diagnostic-values"></pre></details></section>
       </aside>
     </main>

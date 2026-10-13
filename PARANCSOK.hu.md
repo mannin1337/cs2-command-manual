@@ -126,6 +126,8 @@ A szerverkonzolban a chatparancsok többségénél a `css_` előtagot kell haszn
 
 Oldal: https://cs2.mannin.hair/voice/ . Először lépj fel a CS2 szerverre, majd az oldalon válaszd ki magad az aktív játékoslistából. Megnyitáskor automatikusan betöltődik; későbbi belépésnél a Frissítés gomb lekéri az aktuális listát. Engedélyezd a mikrofont és kapcsolódj, majd a játékban `!voice` paranccsal hagyd jóvá 60 másodpercen belül. Kódmásolás nem kell. `!voicedeny` elutasítja a saját függő kérésedet; `!voiceleave` kiléptet. A `css_browservoice` root admin / szerverkonzol számára állapotot mutat.
 
+A már szinkronizált vagy NO VOICE játékos nem választható újra. Mikrofon nélkül jelöld a NO VOICE lehetőséget, és ezt is hagyd jóvá a játékban `!voice` paranccsal. Nem kér mikrofont, nem küld és nem fogad hangot. Új választáshoz `!voiceleave`. Működő hang nélkül a név mellett `(NO VOICE)` jelenik meg. Bezárt vagy kifagyott hanglapnál privát figyelmeztetés kér azonnali újracsatlakozást. Új meccs minden T/CT ember működő hangjára vagy jóváhagyott NO VOICE választására vár, adminos indításnál is. Egy már futó meccset a hangvesztés nem szüneteltet.
+
 A CS2 saját beszédhangerőjét egyszer állítsd nullára: `snd_voipvolume 0` (előbb jegyezd fel az eredeti értéket). A megszokott CS2 beszédgomb marad aktív, a hang a böngészőből szól. A lap maradjon nyitva; kilépéskor állítsd vissza az eredeti CS2 hangerőt.
 
 20 méteres HRTF térhang, mindkét csapat minden élő emberi játékosa, folyamatos távolsági halkulás. Pozíció és nézési irány 20 Hz / átlag 50 ms, simított hangparaméterekkel. Halál, admin-némítás, kilépés és 750 ms-nál régebbi állapot lezárja a hangutat. Nincs hangrögzítés. A pawn szemszögét követi; thirdperson kameraeltolás és falakon át történő tompítás nincs benne.

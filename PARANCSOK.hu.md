@@ -124,8 +124,8 @@ A szerverkonzolban a chatparancsok többségénél a `css_` előtagot kell haszn
 
 ## Böngészős térhang
 
-Oldal: https://cs2.mannin.hair/voice/ . Letöltés helyett megnyitod a böngészőben és engedélyezed a mikrofont. `!voice` privát, egyszer használható, 5 perces párosítókódot ad; `!voiceleave` kiléptet. A `css_browservoice` root admin / szerverkonzol számára állapotot mutat.
+Oldal: https://cs2.mannin.hair/voice/ . Először lépj fel a CS2 szerverre, majd az oldalon válaszd ki magad az aktív játékoslistából. Megnyitáskor automatikusan betöltődik; későbbi belépésnél a Frissítés gomb lekéri az aktuális listát. Engedélyezd a mikrofont és kapcsolódj, majd a játékban `!voice` paranccsal hagyd jóvá 60 másodpercen belül. Kódmásolás nem kell. `!voicedeny` elutasítja a saját függő kérésedet; `!voiceleave` kiléptet. A `css_browservoice` root admin / szerverkonzol számára állapotot mutat.
 
-A CS2 saját beszédhangerőjét a konzolban egyszer állítsd nullára: `snd_voipvolume 0` (előbb jegyezd fel az eredeti értéket). A megszokott CS2 beszédgomb marad aktív, a hang a böngészőből szól. A lap maradjon nyitva; kilépéskor állítsd vissza az eredeti CS2 hangerőt.
+A CS2 saját beszédhangerőjét egyszer állítsd nullára: `snd_voipvolume 0` (előbb jegyezd fel az eredeti értéket). A megszokott CS2 beszédgomb marad aktív, a hang a böngészőből szól. A lap maradjon nyitva; kilépéskor állítsd vissza az eredeti CS2 hangerőt.
 
-20 méteres HRTF térhang, mindkét csapat minden élő emberi játékosa, folyamatos távolsági halkulás. Pozíció és nézési irány 20 Hz / átlag50ms, simított hangparaméterekkel. Halál, admin-némítás, kilépés és 750ms-nál régebbi állapot lezárja a hangutat. Nincs hangrögzítés. Az első változat a pawn szemszögét követi; thirdperson kameraeltolás és falakon át történő tompítás nincs benne.
+20 méteres HRTF térhang, mindkét csapat minden élő emberi játékosa, folyamatos távolsági halkulás. Pozíció és nézési irány 20 Hz / átlag 50 ms, simított hangparaméterekkel. Halál, admin-némítás, kilépés és 750 ms-nál régebbi állapot lezárja a hangutat. Nincs hangrögzítés. A pawn szemszögét követi; thirdperson kameraeltolás és falakon át történő tompítás nincs benne.

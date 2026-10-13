@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Letöltés nélküli, 20 méteres böngészős térhang a CS2 szerverhez. Párosítás a játékban, HRTF hang fejhallgatóhoz.">
+  <meta name="description" content="Letöltés nélküli, 20 méteres CS2 térhang. Válaszd ki magad az aktív játékoslistából, hagyd jóvá a játékban, és beszélj térben.">
   <title>Counter-Strike · Térhang</title>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./client.js"></script>
@@ -26,21 +26,23 @@
         <div class="tab-strip"><span class="active-tab">Kapcsolódás</span><span>Mindkét csapat · élő játékosok</span></div>
         <div class="setup-grid">
           <section class="steps" aria-label="Beállítás lépései">
-            <div class="step"><span class="step-number">01</span><div><h2>Kérj kódot a játékban</h2><p>Írd be a chatbe: <code>!voice</code><br>A privát kód 5 percig érvényes, egyszer használható.</p></div></div>
+            <div class="step"><span class="step-number">01</span><div><h2>Lépj fel a CS2 szerverre</h2><p>A kapcsolódásnál válaszd ki a saját játékosneved. Ha később léptél be, nyomd meg a <strong>Frissítés</strong> gombot.</p></div></div>
             <div class="step"><span class="step-number">02</span><div><h2>Némítsd el a gyári hangot</h2><p>Jegyezd fel a konzolban a <code>snd_voipvolume</code> jelenlegi értékét, majd add ki:</p><button type="button" id="copy-command" class="command-button"><code>snd_voipvolume 0</code><span>Másolás</span></button><p class="small">A CS2 beszédgombja maradjon aktív. Kilépéskor állítsd vissza az eredeti értéket.</p></div></div>
-            <div class="step"><span class="step-number">03</span><div><h2>Párosítsd a mikrofont</h2><p>Engedélyezd a hozzáférést, aztán térj vissza a játékhoz. Ezt a lapot hagyd nyitva.</p></div></div>
+            <div class="step"><span class="step-number">03</span><div><h2>Kapcsolódj, és hagyd jóvá</h2><p>Engedélyezd a mikrofont, majd a játék chatjében írd be: <code>!voice</code>. Erre 60 másodperced van. Kódot nem kell másolni; ezt a lapot hagyd nyitva.</p></div></div>
           </section>
           <section class="connect-panel" aria-labelledby="connect-heading">
             <h2 id="connect-heading">Hangkapcsolat</h2>
             <div class="status-bar" role="status" aria-live="polite"><span class="status-led" id="status-led" data-state="idle" aria-hidden="true"></span><span id="status">Nincs kapcsolat</span></div>
             <p id="service-note" class="service-note">A szolgáltatás beállításának ellenőrzése…</p>
             <form id="join-form">
-              <label for="pair-code">Párosítókód <span>a játék privát válaszából</span></label>
-              <input id="pair-code" name="code" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="100" placeholder="Illeszd be a !voice kódját" required>
+              <div class="roster-heading"><label for="player-select">Saját játékosod <span>az aktuálisan csatlakozott játékosok közül</span></label><button id="refresh-players" type="button">Frissítés</button></div>
+              <select id="player-select" name="player" required><option value="">Játékoslista betöltése…</option></select>
+              <p id="roster-note" class="small" role="status" aria-live="polite">A szerveren lévő játékosok lekérése…</p>
               <label for="microphone">Mikrofon</label>
               <select id="microphone" name="microphone"><option value="">Rendszer alapértelmezett mikrofonja</option></select>
               <p class="small">A CS2-ben is ugyanezt a mikrofont válaszd.</p>
               <button id="join" type="submit" class="primary" disabled>Mikrofon engedélyezése és csatlakozás</button>
+              <p class="small">Csak a saját kezdeményezett kérésedet hagyd jóvá. Elutasítás a játékban: <code>!voicedeny</code>.</p>
             </form>
             <div class="connection-actions"><button id="resume-audio" type="button" hidden>Hang folytatása</button><button id="leave" type="button" disabled>Kapcsolat bontása</button></div>
             <p id="feedback" class="feedback" role="status" aria-live="polite"></p>

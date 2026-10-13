@@ -215,7 +215,7 @@ function openSocket(session) {
       clearTimeout(timer);
       session.rpc.close();
       reject(new Error('A párosítási kapcsolat megszakadt.'));
-      if (alive(session)) void leave(session.mode === 'no_voice' && joined ? 'NO VOICE módban nem volt hangküldés vagy vétel. Váltáshoz a játékban !voiceleave, majd válassz újra.' : 'A hangkapcsolat megszakadt. Válaszd ki magad újra azonnal, majd a játékban hagyd jóvá: !voice.', session.mode !== 'no_voice');
+      if (alive(session)) void leave(session.mode === 'no_voice' && joined ? 'NO VOICE módban nem volt hangküldés vagy vétel. Váltáshoz a játékban !voiceleave, majd válassz újra.' : 'A hangkapcsolat véget ért. Ha az admin kikapcsolta a voicechatet, állítsd vissza a CS2 beszédhangerőt. Egyébként csatlakozz újra azonnal, majd a játékban !voice.', session.mode !== 'no_voice');
     };
     session.socket.onerror = () => {
       session.audio.silence();

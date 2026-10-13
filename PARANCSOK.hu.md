@@ -124,6 +124,8 @@ A szerverkonzolban a chatparancsok többségénél a `css_` előtagot kell haszn
 
 ## Böngészős térhang
 
+Admin kapcsoló: `!voicechat` vált, `!voicechat on` bekapcsol, `!voicechat off` kikapcsol, `!voicechat status` állapotot mutat. Menü: /admin → Server → Custom Server Commands → Bongeszos terhang BE/KI. Kikapcsolva a gyári hangszabályok érvényesek, nincs NO VOICE jelzés vagy meccsindítási hangfeltétel; mindenki állítsa vissza a `snd_voipvolume` korábbi értékét. Visszakapcsoláskor újra kell csatlakozni a hangoldalon. A kapcsoló pályaváltás és plugin-újratöltés után megmarad; teljes CS2-újraindításkor alapból BE. Az alábbiak bekapcsolt módra vonatkoznak.
+
 Oldal: https://cs2.mannin.hair/voice/ . Először lépj fel a CS2 szerverre, majd az oldalon válaszd ki magad az aktív játékoslistából. Megnyitáskor automatikusan betöltődik; későbbi belépésnél a Frissítés gomb lekéri az aktuális listát. Engedélyezd a mikrofont és kapcsolódj, majd a játékban `!voice` paranccsal hagyd jóvá 60 másodpercen belül. Kódmásolás nem kell. `!voicedeny` elutasítja a saját függő kérésedet; `!voiceleave` kiléptet. A `css_browservoice` root admin / szerverkonzol számára állapotot mutat.
 
 A már szinkronizált vagy NO VOICE játékos nem választható újra. Mikrofon nélkül jelöld a NO VOICE lehetőséget, és ezt is hagyd jóvá a játékban `!voice` paranccsal. Nem kér mikrofont, nem küld és nem fogad hangot. Új választáshoz `!voiceleave`. Működő hang nélkül a név mellett `(NO VOICE)` jelenik meg. Bezárt vagy kifagyott hanglapnál privát figyelmeztetés kér azonnali újracsatlakozást. Új meccs minden T/CT ember működő hangjára vagy jóváhagyott NO VOICE választására vár, adminos indításnál is. Egy már futó meccset a hangvesztés nem szüneteltet.
